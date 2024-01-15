@@ -1,38 +1,44 @@
 #include "animation.h"
 
-namespace Animation {
-	bool currentlyRenderingAnimation = false;
-	int currentFrame = 0;
-	int currentPass = 0;
-	int totalFrameCount;
+namespace Animation
+{
+    bool CurrentlyRenderingAnimation = false;
+    int CurrentFrame = 0;
+    int CurrentPass = 0;
+    int TotalFrameCount;
 
-	glm::vec3 positionA, positionB;
-	glm::vec2 orientationA, orientationB;
+    glm::vec3 PositionA, PositionB;
+    glm::vec2 OrientationA, OrientationB;
 
-	float cameraSpeed = 1.0f;
+    float CameraSpeed = 1.0f;
 
-	int framePasses = 16;
-	int frameRate = 24;
+    int FramePasses = 16;
+    int FrameRate = 24;
 
-	void setStartPosition(glm::vec3 cameraPos, float cameraYaw, float cameraPitch) {
-		positionA = cameraPos;
-		orientationA = glm::vec2(cameraYaw, cameraPitch);
-	}
+    void SetStartPosition(const glm::vec3 cameraPos, const float cameraYaw, const float cameraPitch)
+    {
+        PositionA = cameraPos;
+        OrientationA = glm::vec2(cameraYaw, cameraPitch);
+    }
 
-	void setEndPosition(glm::vec3 cameraPos, float cameraYaw, float cameraPitch) {
-		positionB = cameraPos;
-		orientationB = glm::vec2(cameraYaw, cameraPitch);
-	}
+    void SetEndPosition(const glm::vec3 cameraPos, const float cameraYaw, const float cameraPitch)
+    {
+        PositionB = cameraPos;
+        OrientationB = glm::vec2(cameraYaw, cameraPitch);
+    }
 
-	void recalculateTotalFrameCount() {
-		totalFrameCount = glm::distance(positionA, positionB) / cameraSpeed * frameRate;
-	}
+    void RecalculateTotalFrameCount()
+    {
+        TotalFrameCount = static_cast<int>(distance(PositionA, PositionB) / CameraSpeed * static_cast<float>(FrameRate));
+    }
 
-	glm::vec3 calculateCurrentCameraPosition() {
-		return glm::mix(positionA, positionB, (float) currentFrame / totalFrameCount);
-	}
-	
-	glm::vec2 calculateCurrentCameraOrientation() {
-		return glm::mix(orientationA, orientationB, (float)currentFrame / totalFrameCount);
-	}
+    glm::vec3 CalculateCurrentCameraPosition()
+    {
+        return mix(PositionA, PositionB, static_cast<float>(CurrentFrame) / static_cast<float>(TotalFrameCount));
+    }
+
+    glm::vec2 CalculateCurrentCameraOrientation()
+    {
+        return mix(OrientationA, OrientationB, static_cast<float>(CurrentFrame) / static_cast<float>(TotalFrameCount));
+    }
 }

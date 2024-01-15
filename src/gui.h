@@ -1,18 +1,16 @@
 #pragma once
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-#include "scene.h"
+namespace Gui
+{
+    extern GLFWwindow* Window;
+    extern bool ShouldQuit;
+    extern bool AnimationRenderWindowVisible;
 
-namespace GUI {
-	extern GLFWwindow* window;
-	extern bool shouldQuit;
-	extern bool animationRenderWindowVisible;
+    void Init(GLFWwindow* window);
+    void Cleanup();
 
-	void init(GLFWwindow* window);
-	void cleanup();
-
-	void render();
-};
+    void Render();
+}

@@ -1,67 +1,101 @@
 #pragma once
 
 #include <random>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "scene.h"
 
-using namespace Scene;
+inline void PlaceRandomSpheres()
+{
+    std::random_device rd; // obtain a random number from hardware
+    std::mt19937 gen(rd()); // seed the generator
+    std::uniform_int_distribution<> distr(0, 1000); // define the range
 
-void placeRandomSpheres() {
-	std::random_device rd; // obtain a random number from hardware
-	std::mt19937 gen(rd()); // seed the generator
-	std::uniform_int_distribution<> distr(0, 1000); // define the range
+    for (int i = 0; i < 64; i++)
+    {
+        float radius = static_cast<float>(distr(gen)) / 1000.0f;
+        float x = static_cast<float>(distr(gen)) / 1000.0F - 0.5f;
+        float y = static_cast<float>(distr(gen)) / 1000.0F - 0.5f;
+        float z = static_cast<float>(distr(gen)) / 1000.0F - 0.5f;
+        const float length = x * x + y * y + z * z;
+        x = x / length * 5.0f;
+        y = y / length * 5.0f;
+        z = z / length * 5.0f;
 
-	for (int i = 0; i < 64; i++) {
-		float radius = distr(gen) / 1000.0F;
-		float x = distr(gen) / 1000.0F - 0.5F;
-		float y = distr(gen) / 1000.0F - 0.5F;
-		float z = distr(gen) / 1000.0F - 0.5F;
-		float length = x * x + y * y + z * z;
-		x = x / length * 5.0F;
-		y = y / length * 5.0F;
-		z = z / length * 5.0F;
+        bool collision = false;
+        for (int j = 0; j < i; j++)
+        {
+            if (const float dist = glm::distance(glm::vec3(x, y, z),
+                                                 glm::vec3(Scene::Objects[j].m_Position[0],
+                                                           Scene::Objects[j].m_Position[1],
+                                                           Scene::Objects[j].m_Position[2])); dist < radius +
+                Scene::Objects[j].
+                m_Scale[0])
+            {
+                collision = true;
+                break;
+            }
+        }
 
-		bool collision = false;
-		for (int j = 0; j < i; j++) {
-			float dist = glm::distance(glm::vec3(x, y, z), glm::vec3(objects[j].position[0], objects[j].position[1], objects[j].position[2]));
-			if (dist < radius + objects[j].scale[0]) {
-				collision = true;
-				break;
-			}
-		}
+        if (collision)
+        {
+            i--;
+        }
+        else
+        {
+            Scene::Objects.push_back(Scene::Object(1, {x, y, z}, {radius, radius, radius}, Scene::Material(
+                                                       {
+                                                           static_cast<float>(distr(gen)) / 1000.0f,
+                                                           static_cast<float>(distr(gen)) / 1000.0f,
+                                                           static_cast<float>(distr(gen)) / 1000.0f
+                                                       },
+                                                       {
+                                                           static_cast<float>(distr(gen)) / 1000.0f,
+                                                           static_cast<float>(distr(gen)) / 1000.0f,
+                                                           static_cast<float>(distr(gen)) / 1000.0f
+                                                       }, {0, 0, 0},
+                                                       0.0f, static_cast<float>(distr(gen)) / 1000.0f, 0.0f, 0.0f)));
+        }
+    }
 
-		if (collision) {
-			i--;
-		}
-		else {
-			objects.push_back(Object(1, { x, y, z }, { radius, radius, radius }, Material({ distr(gen) / 1000.0F, distr(gen) / 1000.0F, distr(gen) / 1000.0F }, { distr(gen) / 1000.0F, distr(gen) / 1000.0F, distr(gen) / 1000.0F }, { 0, 0, 0 }, 0.0f, distr(gen) / 1000.0F, 0.0F, 0.0F)));
-		}
-	}
+    Scene::Objects.push_back(Scene::Object(1, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f, 1.0f},
+                                           Scene::Material({1.0f, 1.0f, 1.0f})));
 
-	objects.push_back(Object(1, { 0.0F, 1.0F, 0.0F }, { 1.0F, 1.0F, 1.0F }, Material({ 1.0F, 1.0F, 1.0F })));
+    Scene::Lights.push_back(Scene::PointLight({0.0f, 5.0f, 0.0f}, 0.5f, {1.0f, 1.0f, 1.0f}, 1.0f, 100.0f));
 
-	lights.push_back(PointLight({ 0.0F, 5.0F, 0.0F }, 0.5F, { 1.0F, 1.0F, 1.0F }, 1.0F, 100.0F));
-
-	planeVisible = false;
+    Scene::PlaneVisible = false;
 }
 
-void placeMirrorSpheres() {
-	for (int i = -4; i <= 3; i++) {
-		for (int j = -4; j <= 3; j++) {
-			objects.push_back(Object(1, { (float)i, 1.0F, (float)j }, { 0.5F, 0.5F, 0.5F }, Material({ 0.0F, 0.0F, 0.0F }, { 1.0F, 1.0F, 1.0F }, { 0.0F, 0.0F, 0.0F }, 0.0F, 0.2F, 0.0F, 0.0F)));
-		}
-	}
+inline void PlaceMirrorSpheres()
+{
+    for (int i = -4; i <= 3; i++)
+    {
+        for (int j = -4; j <= 3; j++)
+        {
+            Scene::Objects.push_back(Scene::Object(1, {static_cast<float>(i), 1.0f, static_cast<float>(j)},
+                                                   {0.5f, 0.5f, 0.5f},
+                                                   Scene::Material({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f},
+                                                                   {0.0f, 0.0f, 0.0f},
+                                                                   0.0f, 0.2f,
+                                                                   0.0f, 0.0f)));
+        }
+    }
 
-	planeMaterial = Material({ 1.0F, 1.0F, 1.0F }, { 0.75F, 0.75F, 0.75F }, { 0.0F, 0.0F, 0.0F }, 0.0F, 0.0F, 0.0F, 0.0F);
+    Scene::PlaneMaterial = Scene::Material({1.0f, 1.0f, 1.0f}, {0.75f, 0.75f, 0.75f}, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f,
+                                           0.0f, 0.0f);
 
-	lights.push_back(PointLight({ 0.0F, 5.0F, 0.0F }, 0.5F, { 1.0F, 1.0F, 1.0F }, 1.0F, 100.0F));
+    Scene::Lights.push_back(Scene::PointLight({0.0f, 5.0f, 0.0f}, 0.5f, {1.0f, 1.0f, 1.0f}, 1.0f, 100.0f));
 }
 
-void placeBasicScene() {
-	objects.push_back(Object(1, { 0.0F, 0.5F, 0.0F }, { 0.5F, 0.5F, 0.5F }, Material({ 1.0F, 1.0F, 1.0F }, { 0.0F, 0.0F, 0.0F }, { 0.0F, 0.0F, 0.0F }, 0.0F, 1.0F, 0.0F, 0.0F)));
+inline void PlaceBasicScene()
+{
+    Scene::Objects.push_back(Scene::Object(1, {0.0f, 0.5f, 0.0f}, {0.5f, 0.5f, 0.5f},
+                                           Scene::Material({1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f},
+                                                           0.0f, 1.0f,
+                                                           0.0f,
+                                                           0.0f)));
 
-	planeMaterial = Material({ 1.0F, 1.0F, 1.0F }, { 0.75F, 0.75F, 0.75F }, { 0.0F, 0.0F, 0.0F }, 0.0F, 0.0F, 0.0F, 0.0F);
+    Scene::PlaneMaterial = Scene::Material({1.0f, 1.0f, 1.0f}, {0.75f, 0.75f, 0.75f}, {0.0f, 0.0f, 0.0f}, 0.0f, 0.0f,
+                                           0.0f, 0.0f);
 
-	lights.push_back(PointLight({ 0.0F, 5.0F, 0.0F }, 0.5F, { 1.0F, 1.0F, 1.0F }, 1.0F, 100.0F));
+    Scene::Lights.push_back(Scene::PointLight({0.0f, 5.0f, 0.0f}, 0.5f, {1.0f, 1.0f, 1.0f}, 1.0f, 100.0f));
 }
